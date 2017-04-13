@@ -1,6 +1,6 @@
 /*
  Copyright (C) 2011 James Coliz, Jr. <maniacbug@ymail.com>
- 
+
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  version 2 as published by the Free Software Foundation.
@@ -42,7 +42,7 @@ void MCP23018::writeToRegister(uint8_t address, uint8_t data)
   Serial.print(">");
   Serial.println(data,HEX);
 #endif
-  
+
   readFromRegister(address);
 }
 
@@ -53,7 +53,7 @@ void MCP23018::writePairToRegister(uint8_t address, uint8_t first_data, uint8_t 
   Wire.write(first_data);
   Wire.write(second_data);
   Wire.endTransmission();
-  
+
 #ifdef DEBUG
   Serial.print(">");
   Serial.print(address,HEX);
@@ -61,28 +61,28 @@ void MCP23018::writePairToRegister(uint8_t address, uint8_t first_data, uint8_t 
   Serial.println(first_data,HEX);
   Serial.println(second_data,HEX);
 #endif
-  
+
   readFromRegister(address);
 }
 
 uint8_t MCP23018::readFromRegister(uint8_t address)
 {
   uint8_t received_data = 0;
-  
+
   // Establish connection, select receipt address
   Wire.beginTransmission(i2c_address);
   Wire.write(address);
   Wire.endTransmission();
-  
+
   // Request one data byte
   Wire.requestFrom(i2c_address, (uint8_t)1);
-  
+
 #ifdef DEBUG
   Serial.print("<");
   Serial.print(address,HEX);
   Serial.print("<");
 #endif
-  
+
   // Fill variables when ready
   if(Wire.available())
   {
@@ -91,12 +91,12 @@ uint8_t MCP23018::readFromRegister(uint8_t address)
     Serial.println(received_data ,HEX);
 #endif
 }
-  
+
 #ifdef DEBUG
   else
     Serial.println("?");
 #endif
-  
+
   return received_data;
 }
 
@@ -111,7 +111,7 @@ void MCP23018::setBitInRegister(const uint8_t address_bit[], bool bitState)
     temp = readFromRegister(address) | (1 << bit);
   else
     temp = readFromRegister(address) & ~(1 << bit);
-  
+
   writeToRegister(address, temp);
 }
 
@@ -126,28 +126,39 @@ void MCP23018::setBitGroupInRegister(const uint8_t address, const uint8_t data, 
     Serial.print(mask,HEX);
     Serial.println(")");
 #endif
-  
-  uint8_t temp = readFromRegister(address) & ( mask ^ 0xff) | ( data & mask );  
+
+  uint8_t temp = (readFromRegister(address) & ( mask ^ 0xff)) | ( data & mask );
   writeToRegister(address, temp);
 }
 
-MCP23018::MCP23018(uint8_t _address)
+MCP23018::MCP23018(uint8_t _address) {
+  SetAddress(_address);
+}
+
+void MCP23018::SetAddress(uint8_t _address)
 {
   i2c_address = ( _address & B111 ) | I2C_MCP23018;
 }
 
 void MCP23018::begin(void)
 {
+#ifdef DEBUG
   Serial.print("\nBeginning\n");
-  // Set all pins to outputs
-  writeToRegister(IODIRA,B11111111);
-  writeToRegister(IODIRB,B00000000);
+#endif
+  // Set all pins to outputs(?)
+  SetDirection(B11111111, B00000000);
   SetPullups(B11111111, B00000000);
+}
+
+void MCP23018::SetDirection(uint8_t _a, uint8_t _b)
+{
+  writeToRegister(IODIRA,_a);
+  writeToRegister(IODIRB,_b);
 }
 
 void MCP23018::SetPullups(uint8_t _a, uint8_t _b)
 {
-  writePairToRegister(GPPUA,_a,_b);  
+  writePairToRegister(GPPUA,_a,_b);
 }
 
 void MCP23018::SetPortA(uint8_t _data)

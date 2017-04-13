@@ -1,6 +1,6 @@
 /*
  Copyright (C) 2011 James Coliz, Jr. <maniacbug@ymail.com>
- 
+
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  version 2 as published by the Free Software Foundation.
@@ -98,6 +98,13 @@ public:
   MCP23018(uint8_t _address);
 
   /**
+   * Constructor
+   *
+   * Defer setting address with setAddress()
+   */
+  MCP23018() {};
+
+  /**
    * Setup & prepare
    *
    * Call this function from within the setup() function of your
@@ -109,31 +116,51 @@ public:
   void begin(void);
 
   /**
+   * Set the i2c address
+   *
+   * @param _address the low 3 bits of the address for the chip being
+   * addressed.  This should correspond to the voltage on the ADDR pin.
+   */
+  void SetAddress(uint8_t _address);
+
+  /**
    * Set the pull-up resistors
    *
    * The MCP23018 has open-drain inputs, which means if you want to use the
    * outputs to drive logic inputs on some other device, you need to engage
    * the pullup resistors.
    *
-   * @param _a One bit for each line on port 'A', send 1 to enable the pullup, 
+   * @param _a One bit for each line on port 'A', send 1 to enable the pullup,
    * 0 to disable
-   * @param _b One bit for each line on port 'B', send 1 to enable the pullup, 
+   * @param _b One bit for each line on port 'B', send 1 to enable the pullup,
    * 0 to disable
-   */ 
+   */
   void SetPullups(uint8_t _a, uint8_t _b);
+
+  /**
+   * Set the port direction
+   *
+   * Set the input/outpu direction for each pin
+   *
+   * @param _a One bit for each line on port 'A', send 1 for input,
+   * 0 for output
+   * @param _b One bit for each line on port 'A', send 1 for input,
+   * 0 for output
+   */
+  void SetDirection(uint8_t _a, uint8_t _b);
 
   /**
    * Set the outputs on Port A
    *
    * @param _data Bits to set
-   */  
+   */
   void SetPortA(uint8_t _data);
-  
+
   /**
    * Set the outputs on Port B
    *
    * @param _data Bits to set
-   */  
+   */
   void SetPortB(uint8_t _data);
 
   /**
@@ -141,43 +168,43 @@ public:
    *
    * @param _a Bits to set on Port A
    * @param _b Bits to set on Port B
-   */  
+   */
   void SetPorts(uint8_t _a, uint8_t _b);
-  
+
   /**
    * Get the input values on Port A
    *
-   * @return The bits set on Port A inputs 
-   */  
+   * @return The bits set on Port A inputs
+   */
   uint8_t GetPortA(void);
-  
+
   /**
    * Get the input values on Port B
    *
    * @sa GetPortA
-   * @return The bits set on Port B inputs 
-   */  
+   * @return The bits set on Port B inputs
+   */
   uint8_t GetPortB(void);
-  
+
   /**
    * Get the output latches on Port A
    *
    * The latches are the values we previously set, rather than trying to read the
    * port itself.  If you want to read the previously-set values with an eye toward
    * updating only certain bits, use this method.
-   * 
-   * @return The bits set on Port A 
-   */  
+   *
+   * @return The bits set on Port A
+   */
   uint8_t GetLatchPortA(void);
-  
+
   /**
    * Get the output latches on Port B
    *
-   * @sa GetLatchPortA 
-   * @return The bits set on Port B 
+   * @sa GetLatchPortA
+   * @return The bits set on Port B
    */
   uint8_t GetLatchPortB(void);
-  
+
   /**
    * Set only certain bits on Port B
    *
